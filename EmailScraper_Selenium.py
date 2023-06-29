@@ -11,11 +11,15 @@ if not url.startswith("http://") and not url.startswith("https://"):
     url = "http://" + url
 
 # Extract the domain from the URL
-match = re.search(r"(.*?)(?=.com)", url)
+if ".com" in url:
+    match = re.search(r"(.*?)(?=.com)", url)
+elif ".net" in url:
+    match = re.search(r"(.*?)(?=.net)", url)
+
 if match:
     domain = match.group()
 else:
-    print("Invalid URL format. Please make sure the URL contains '.com'")
+    print("Invalid URL format. Please make sure the URL contains '.com' or '.net'")
     exit()
 
 # Initialise chrome driver
@@ -29,7 +33,10 @@ links = driver.find_elements(By.TAG_NAME, 'a')
 page_list = [(element.get_attribute('href'), element.get_attribute('innerText')) for element in links]
 
 # Filter the page list to remove any None values and non-matching domains
-page_list = [(href, text) for href, text in page_list if href is not None and domain in href and ".com" in href]
+if ".com" in url:
+    page_list = [(href, text) for href, text in page_list if href is not None and domain in href and ".com" in href]
+elif ".net" in url:
+    page_list = [(href, text) for href, text in page_list if href is not None and domain in href and ".net" in href]
 
 print(page_list)
 
