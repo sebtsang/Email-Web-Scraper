@@ -15,7 +15,6 @@ if ".com" in url:
     match = re.search(r"(.*?)(?=.com)", url)
 elif ".net" in url:
     match = re.search(r"(.*?)(?=.net)", url)
-
 if match:
     domain = match.group()
 else:
@@ -31,6 +30,9 @@ links = driver.find_elements(By.TAG_NAME, 'a')
 
 # Collect the href attribute and anchor text from each anchor element
 page_list = [(element.get_attribute('href'), element.get_attribute('innerText')) for element in links]
+
+# Filters only pages that contain the word "agent" in the url
+page_list = [(href, text) for href, text in page_list if href is not None and "agent" in href.lower()]
 
 # Filter the page list to remove any None values and non-matching domains
 if ".com" in url:
@@ -50,10 +52,10 @@ for href, anchor_text in page_list:
     # Navigate to the page
     driver.get(href)
 
-    # Wait for a few seconds to ensure the page is fully loaded
+    # Waits 2 few seconds to ensure the page is fully loaded
     time.sleep(2)
 
-    # Scrape the email addresses using the defined pattern
+    # Scrape email addresses using the defined regex
     html = driver.page_source
     page_emails = re.findall(email_pattern, html)
 
@@ -69,7 +71,7 @@ for href, anchor_text in page_list:
     # Append the scraped emails to the main list
     emails.extend(page_emails)
 
-    # Scrape the table rows (assuming the table rows contain name and role)
+    # Scrape the table rows
     table_rows = driver.find_elements(By.TAG_NAME, 'tr')
 
     # Extract the name and role from each table row and append them to respective lists
@@ -90,7 +92,7 @@ for href, anchor_text in page_list:
         else:
             print(f'Email: {email}, Name: N/A, Role: N/A (No corresponding name and role data), Page: {anchor_text}')
 
-    print()  # Add a new line between pages
+    print()
 
-# Close the browser
+# Closes browser
 driver.close()
